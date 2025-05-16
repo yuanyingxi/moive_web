@@ -32,7 +32,7 @@ public class AliPayController {
 // 商品名称 String productName
     @ResponseBody
     @PostMapping("/create")
-    public String alipay(@RequestParam BigDecimal amount,
+    public String alipay(@RequestParam Double amount,
                          @RequestParam String productName,
                          @RequestHeader("Authorization") String token)
             throws AlipayApiException {

@@ -26,7 +26,7 @@ public class OrderService {
      * 创建新订单
      */
     @Transactional
-    public Order createOrder(Long userId, BigDecimal amount) {
+    public Order createOrder(Long userId, Double amount) {
         Order order = new Order();
         order.setOrderId(generateOrderId()); // 商户订单号, 主键
         order.setUserId(userId);             // 用户id, （逻辑外键，关联user.id）
