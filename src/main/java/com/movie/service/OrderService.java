@@ -26,13 +26,13 @@ public class OrderService {
      * 创建新订单
      */
     @Transactional
-    public Order createOrder(Long userId, Double amount) {
+    public Order createOrder(Long userId, BigDecimal amount) {
         Order order = new Order();
-        order.setOrderId(generateOrderId()); // 商户订单号, 主键
+        order.setOrderId(generateOrderId(userId)); // 商户订单号, 主键
         order.setUserId(userId);             // 用户id, （逻辑外键，关联user.id）
         order.setAmount(amount);             // 支付金额 //FIXME 注意：支付宝支付金额严格限定保留两位小数
         order.setPaymentStatusId(PaymentStatus.UNPAID); // 支付状态id, （逻辑外键，关联payment_statue.id)
-        order.setCreateTime(LocalDateTime.now());       // 创建订单时间
+        order.setPaymentTime(LocalDateTime.now());       // 创建订单时间
         orderMapper.insert(order);
         return order;
     }
@@ -56,10 +56,14 @@ public class OrderService {
     /**
      * 生成唯一订单号
      */
-    private String generateOrderId() {
+    private String generateOrderId(Long userId) {
         // 生成唯一订单号
+        // 用户ID处理：取后4位
+        String userIdPart = String.format("%04d", userId % 10000);
+        // 时间部分：精确到秒
         String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String user = UUID.randomUUID().toString().replace("-", "").toUpperCase();
-        return time + user;
+        // 随机部分：取UUID前6位
+        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        return time + userIdPart + randomPart;
     }
 }
