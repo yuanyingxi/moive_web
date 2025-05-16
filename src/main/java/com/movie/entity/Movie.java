@@ -24,7 +24,7 @@ public class Movie {
     private String coverUrl;  // 电影海报URL
     private LocalDateTime releaseTime;  // 上映时间
     private String region;  // 上映地区
-    private Boolean isVip;  // 是否会员
+    private Integer isVip;  // 是否会员
     private Long playCount;  // 播放量, 用于热播排行
     private Integer duration;  // 片长
     private Long ratingCount;  // 评分人数

@@ -22,7 +22,7 @@ public class User {
     private String password;  // 密码
     private String phone;  // 手机号
     private String email;  // 邮箱
-    private Boolean isVip;  // 是否是 VIP 用户
+    private Integer isVip;  // 是否是 VIP 用户
     private LocalDateTime createTime;  // 创建时间
     private LocalDateTime updateTime;  // 更新时间
     private LocalDateTime lastLoginTime;  // 最后登录时间
