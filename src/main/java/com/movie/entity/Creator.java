@@ -19,5 +19,4 @@ public class Creator {
     private String name;  // 主创姓名
 //    private String bio;  // 主创简介
 //    private String photoUrl;  // 主创照片
-
 }

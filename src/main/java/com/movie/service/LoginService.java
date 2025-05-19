@@ -2,17 +2,24 @@ package com.movie.service;
 
 import com.movie.DTO.LoginDTO;
 import com.movie.common.Result;
-import jakarta.validation.constraints.NotBlank;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+@Service
 public interface LoginService {
-    // 检查用户的登录信息是否正确
     boolean checkUser(LoginDTO loginDTO);
-    // 更新用户的登录信息
+
     void updateLoginInfo(LoginDTO loginDTO);
-    // 获取 jwt token
-    Map<String, Object> getUserInfo(@NotBlank String username);
-    // 刷新token
+
+    Map<String, Object> getUserInfo(String username);
+
+    // 刷新 Token
     Result refreshToken(String refreshToken);
 }
