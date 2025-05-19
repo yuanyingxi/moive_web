@@ -23,7 +23,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ExcelImportImpl implements ExcelImportService {
+public class ExcelImportServiceImpl implements ExcelImportService {
     private final MovieMapper movieMapper;
     private final GenreMapper genreMapper;
     private final MovieGenreMapper movieGenreMapper;

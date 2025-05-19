@@ -15,11 +15,11 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class OrderImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Autowired
-    public OrderImpl(OrderMapper orderMapper) {
+    public OrderServiceImpl(OrderMapper orderMapper) {
         this.orderMapper = orderMapper;
     }
 

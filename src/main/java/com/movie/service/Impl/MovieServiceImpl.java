@@ -13,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-public class MovieImpl implements MovieService {
+public class MovieServiceImpl implements MovieService {
 
     private final MovieMapper movieMapper;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MovieImpl(MovieMapper movieMapper,
-                        RedisTemplate<String, Object> redisTemplate) {
+    public MovieServiceImpl(MovieMapper movieMapper,
+                            RedisTemplate<String, Object> redisTemplate) {
         this.movieMapper = movieMapper;
         this.redisTemplate = redisTemplate;
     }
