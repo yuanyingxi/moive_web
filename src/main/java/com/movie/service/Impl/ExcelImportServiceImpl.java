@@ -1,5 +1,6 @@
 package com.movie.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.movie.entity.*;
 import com.movie.exception.ExcelParseException;
 import com.movie.mapper.CreatorMapper;
@@ -20,6 +21,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +68,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
                 // 1. 处理电影主表
                 Movie movie = parseMovie(row);
+                Movie existing = movieMapper.selectOne(
+                        new LambdaQueryWrapper<Movie>()
+                                .eq(Movie::getMovieNo, movie.getMovieNo())
+                );
+
+                if (existing != null) {
+                    continue; // 跳过已有记录
+                }
                 movieMapper.insert(movie);
 
                 // 2. 处理电影类型（多对多）
@@ -83,14 +94,17 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     private Movie parseMovie(Row row) throws ExcelParseException{
         Movie movie = new Movie();
         try{
+            movie.setMovieNo(getCellStringValue(row, 0)); //电影ID
             movie.setTitle(getCellStringValue(row, 1)); // 标题
             movie.setDescription(getCellStringValue(row, 2)); // 简介
-            movie.setCover_url(getCellStringValue(row, 3)); // 封面URL
-            movie.setRelease_date(parseLocalDateTime(getCellStringValue(row, 4))); // 上映日期
+            movie.setCoverUrl(getCellStringValue(row, 3)); // 封面URL
+            movie.setReleaseDate(parseLocalDateTime(getCellStringValue(row, 4))); // 上映日期
             movie.setRegion(getCellStringValue(row, 5)); // 地区
-            movie.setDuration((int)getCellNumericValue(row, 6)); // 时长
-            movie.setAverage_rating(new BigDecimal(getCellStringValue(row, 7))); // 评分
-            movie.setRating_count((long)getCellNumericValue(row, 8)); // 评分人数
+            //FIXME  movie.setIsVip(getCellNumericValue(row,));      是否是VIP
+            //FIXME  movie.setPlayCount(getCellNumericValue(row,));  播放次数
+            movie.setDuration(parseDurationAndRegion(getCellStringValue(row, 6))); // 时长
+            movie.setAverageRating(BigDecimal.valueOf(getCellNumericValue(row, 7))); // 评分
+            movie.setRatingCount((long)getCellNumericValue(row, 8)); // 评分人数
         }catch (NumberFormatException e) {
             throw new ExcelParseException("数值格式错误", row.getRowNum() + 1); // 标记错误行
         }
@@ -105,7 +119,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
         for (String genreName : rawGenres) {
             // 清洗数据（处理繁体、空格、错别字）
-            String cleanedName = cleanGenreName(genreName.trim());
+            String cleanedName = genreName.trim();
 
             // 查找或创建类型
             Integer existing = genreMapper.selectIdByName(cleanedName);
@@ -126,10 +140,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         }
     }
 
-    // 名称清洗逻辑
-    private String cleanGenreName(String name) {
-        return name.replace("愛情", "爱情")
-                .replace("爆疑", "悬疑");
+    private int parseDurationAndRegion(String durationStr) {
+        // 正则匹配：提取"分"字前的所有非空字符，并验证是否为纯数字
+        Matcher matcher = Pattern.compile("^\\s*(\\d+)\\s*分").matcher(durationStr);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return 0;
     }
 
     //FIXME creator表
