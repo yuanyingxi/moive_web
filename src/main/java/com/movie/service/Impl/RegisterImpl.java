@@ -11,12 +11,15 @@ public class RegisterImpl implements RegisterService {
     @Autowired
     private UserMapper userMapper;
 
+    // 检查用户名是否重复
     @Override
-    public void register(RegisterDTO registerDTO) {
-        // 检查用户名是否重复
-        if (userMapper.existsByUsername(registerDTO.getUsername())) {
-            throw new RuntimeException("用户名已存在");
-        }
+    public Boolean isUserRegistered(RegisterDTO registerDTO) {
+        return userMapper.existsByUsername(registerDTO);
+    }
 
+    // 写入用户信息
+    @Override
+    public void insertUser(RegisterDTO registerDTO) {
+        userMapper.insertUser(registerDTO);
     }
 }

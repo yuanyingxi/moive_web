@@ -1,7 +1,17 @@
 spring:
   application:
     name: movie
+  datasource:
+    url: jdbc:mysql://localhost:3306/movie
+    username: root
+    password: Yu20050914
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+jwt:
+  secret: IRQEO614XRpVxwBTxibFtR2JCj329b0D

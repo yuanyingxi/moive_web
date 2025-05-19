@@ -24,18 +24,20 @@ public class Result {
     }
 
     // 快速错误（默认400状态码）
-    public static Result error(String msg) {
+    public static Result error(Object data) {
         Result result = new Result();
         result.code = 400;
-        result.msg = msg;
+        result.msg = "error";
+        result.data = data;
         return result;
     }
 
     // 自定义错误码
-    public static Result error(int code, String msg) {
+    public static Result error(int code, Object data) {
         Result result = new Result();
         result.code = code;
-        result.msg = msg;
+        result.msg = "error";
+        result.data = data;
         return result;
     }
 }

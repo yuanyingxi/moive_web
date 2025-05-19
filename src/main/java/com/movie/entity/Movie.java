@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @TableName("movie")
 public class Movie {
-
+    
     @TableId(type = IdType.AUTO)
     private Long id;  // 数据库自增主键
     private String movieNo;  // 电影编号
