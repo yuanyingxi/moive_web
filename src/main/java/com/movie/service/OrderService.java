@@ -14,52 +14,18 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class OrderService {
-    private final OrderMapper orderMapper;
-
-    @Autowired
-    public OrderService(OrderMapper orderMapper) {
-        this.orderMapper = orderMapper;
-    }
+public interface OrderService {
 
     /**
      * 创建新订单
      */
     @Transactional
-    public Order createOrder(Long userId, Double amount) {
-        Order order = new Order();
-        order.setOrderId(generateOrderId()); // 商户订单号, 主键
-        order.setUserId(userId);             // 用户id, （逻辑外键，关联user.id）
-        order.setAmount(amount);             // 支付金额 //FIXME 注意：支付宝支付金额严格限定保留两位小数
-        order.setPaymentStatusId(PaymentStatus.UNPAID); // 支付状态id, （逻辑外键，关联payment_statue.id)
-        order.setCreateTime(LocalDateTime.now());       // 创建订单时间
-        orderMapper.insert(order);
-        return order;
-    }
+    public Order createOrder(Long userId, BigDecimal amount);
 
     /**
      * 处理支付成功
      */
     @Transactional
-    public boolean handlePaymentSuccess(String orderId, String aliPayTradeNo) {
-        Order order = orderMapper.selectById(orderId);
-        if (order == null || !order.getPaymentStatusId().equals(PaymentStatus.UNPAID)) {
-            return false;
-        }
+    public boolean handlePaymentSuccess(String orderId, String aliPayTradeNo);
 
-        order.setPaymentStatusId(PaymentStatus.PAID);
-        order.setPayTime(LocalDateTime.now());
-        order.setAliPayTradeNo(aliPayTradeNo);
-        return orderMapper.updateById(order) > 0;
-    }
-
-    /**
-     * 生成唯一订单号
-     */
-    private String generateOrderId() {
-        // 生成唯一订单号
-        String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String user = UUID.randomUUID().toString().replace("-", "").toUpperCase();
-        return time + user;
-    }
 }
