@@ -3,10 +3,7 @@ package com.movie.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.movie.entity.*;
 import com.movie.exception.ExcelParseException;
-import com.movie.mapper.CreatorMapper;
-import com.movie.mapper.GenreMapper;
-import com.movie.mapper.MovieGenreMapper;
-import com.movie.mapper.MovieMapper;
+import com.movie.mapper.*;
 import com.movie.service.ExcelImportService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +26,9 @@ import java.util.regex.Pattern;
 public class ExcelImportServiceImpl implements ExcelImportService {
     private final MovieMapper movieMapper;
     private final GenreMapper genreMapper;
-    private final MovieGenreMapper movieGenreMapper;
     private final CreatorMapper creatorMapper;
+    private final MovieGenreMapper movieGenreMapper;
+    private final MovieCreatorMapper movieCreatorMapper;
 
     @PostConstruct
     public void initPresetGenres() {
@@ -54,42 +52,46 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         });
     }
 
+    /**
+     * 处理genre,movie,movie_genre,creator,movie_creator
+     * @param file excel文件
+     * @throws IOException 输入输出错误
+     */
     @Transactional(rollbackFor = Exception.class)
     public void importMovies(MultipartFile file) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
-
-            // 用于批量操作的集合
             List<MovieGenreRelation> movieGenres = new ArrayList<>();
-            List<Creator> movieCreators = new ArrayList<>();
+            List<MovieCreator> movieCreators = new ArrayList<>();
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // 跳过标题行
+                if (row.getRowNum() == 0) continue;
 
-                // 1. 处理电影主表
+                // 处理电影基础信息
                 Movie movie = parseMovie(row);
                 Movie existing = movieMapper.selectOne(
                         new LambdaQueryWrapper<Movie>()
                                 .eq(Movie::getMovieNo, movie.getMovieNo())
                 );
 
-                if (existing != null) {
-                    continue; // 跳过已有记录
+                // 无论电影是否存在都处理主创
+                if (existing == null) {
+                    movieMapper.insert(movie);
+                    processGenres(row, movie.getId(), movieGenres);
+                } else {
+                    movie = existing; // 使用已存在的电影记录
                 }
-                movieMapper.insert(movie);
 
-                // 2. 处理电影类型（多对多）
-                processGenres(row, movie.getId(), movieGenres);
-
-                // 3. 处理主创人员（导演+演员）
-//                processCreators(row, movie.getId(), movieCreators);
+                // 重点：始终处理主创人员
+                processCreators(row, movie.getId(), movieCreators);
             }
 
-            // 批量写入关联表
+            // 批量插入关联
             if (!movieGenres.isEmpty()) movieGenreMapper.batchInsertRelations(movieGenres);
-//            if (!movieCreators.isEmpty()) movieMapper.batchInsertMovieCreators(movieCreators);
+            if (!movieCreators.isEmpty()) movieCreatorMapper.batchInsertRelations(movieCreators);
         }
     }
+
 
     private Movie parseMovie(Row row) throws ExcelParseException{
         Movie movie = new Movie();
@@ -149,29 +151,35 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         return 0;
     }
 
-    //FIXME creator表
-//    private void processCreators(Row row, Long movieId, List<Creator> movieCreators) {
-//        String[] creatorIds = getCellStringValue(row, 12).split("\\|");
-//        String[] names = getCellStringValue(row, 13).split("\\|");
-//        String roleType = getCellStringValue(row, 11); // 角色类型（导演/演员）
-//
-//        for (int i = 0; i < names.length; i++) {
-//            String name = names[i].trim();
-//            Long creatorId = Long.parseLong(creatorIds[i].trim());
-//
-//            // 主创不存在时插入
-//            if (creatorMapper.findIdByName(name) == null) {
-//                Creator creator = new Creator();
-//                creator.setId(creatorId);
-//                creator.setName(name);
-//                creatorMapper.insert(creator);
-//            }
-//
-//            // 获取角色ID（1-导演，2-演员）
-//            Integer roleId = "导演".equals(roleType) ? 1 : 2;
-//            movieCreators.add(new MovieCreator(movieId, creatorId, roleId));
-//        }
-//    }
+    //FIXME creator movie_creator表
+    private void processCreators(Row row, Long movieId, List<MovieCreator> movieCreators) {
+        // 从指定列获取数据
+        String name = getCellStringValue(row, 13).trim();  // 第13列：姓名
+        String photoUrl = getCellStringValue(row, 15);    // 第15列：照片URL
+        String roleType = getCellStringValue(row, 11);    // 第11列：角色类型
+
+        if (name.isEmpty()) return;
+
+        // 处理角色类型
+        Long roleId = "导演".equalsIgnoreCase(roleType) ? 1L : 2L;
+
+        // 查询或创建主创
+        Creator creator = creatorMapper.selectOne(
+                new LambdaQueryWrapper<Creator>().eq(Creator::getName, name)
+        );
+
+        if (creator == null) {
+            creator = new Creator();
+            creator.setName(name);
+            creator.setPhotoUrl(photoUrl);
+            creatorMapper.insert(creator);
+        }
+
+        // 直接创建关联（不检查重复）
+        movieCreators.add(new MovieCreator(movieId, creator.getId(), roleId));
+    }
+
+
 
     // 安全获取字符串值（适配文本型数字）
     private String getCellStringValue(Row row, int cellNum) {

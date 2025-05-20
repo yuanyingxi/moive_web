@@ -26,11 +26,4 @@ public interface MovieMapper extends BaseMapper<Movie> {
     })
     @Select("SELECT title, play_count FROM movie ORDER BY play_count DESC LIMIT 10")
     List<MovieRankingVO> selectPlayRankings();
-
-    /**
-     * 以下为excel表数据导入数据库所需功能：
-     */
-
-    // 批量插入主创-电影关联
-    void batchInsertMovieCreators(@Param("list") List<Creator> list);
 }
