@@ -12,4 +12,6 @@ public interface CreatorMapper extends BaseMapper<Creator> {
 
     @Select("SELECT id FROM creator WHERE name = #{name}")
     Long findIdByName(String name);
+
+    Creator selectByName(String normalized);
 }
