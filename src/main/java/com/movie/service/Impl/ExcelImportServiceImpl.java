@@ -15,8 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,10 +104,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             movie.setTitle(getCellStringValue(row, 1)); // 标题
             movie.setDescription(getCellStringValue(row, 2)); // 简介
             movie.setCoverUrl(getCellStringValue(row, 3)); // 封面URL
-            movie.setReleaseDate(parseLocalDateTime(getCellStringValue(row, 4))); // 上映日期
+            movie.setReleaseDate(parseLocalDate(getCellStringValue(row, 4))); // 上映日期
             movie.setRegion(getCellStringValue(row, 5)); // 地区
-            //FIXME  movie.setIsVip(getCellNumericValue(row,));      是否是VIP
-            //FIXME  movie.setPlayCount(getCellNumericValue(row,));  播放次数
+            double rate = getCellNumericValue(row, 7);
+            int isVip = 0;
+            if(rate >= 9.0){ isVip = 1;}
+            movie.setIsVip(isVip);      //  是否是VIP 评分大于等于9是vip
+            movie.setUrl(isVip==1?"http://b7b8a6d4.natappfree.cc/AveMujica.mp4":"http://b7b8a6d4.natappfree.cc/MyGo.mp4");
+            movie.setPlayCount(2 * (long)getCellNumericValue(row, 8));  //热度设置为评分人数的两倍
             movie.setDuration(parseDurationAndRegion(getCellStringValue(row, 6))); // 时长
             movie.setAverageRating(BigDecimal.valueOf(getCellNumericValue(row, 7))); // 评分
             movie.setRatingCount((long)getCellNumericValue(row, 8)); // 评分人数
@@ -206,11 +214,15 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     // 日期解析（处理Excel日期格式）
-    private LocalDateTime parseLocalDateTime(String dateStr) {
-        try {
-            return LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (Exception e) {
-            return LocalDateTime.now();
+    private LocalDateTime parseLocalDate(String input) {
+        String dateStr = input.split("\\(")[0].trim();
+        if (dateStr.matches("\\d{4}")) {
+            dateStr += "-01-01";
+        } else if (dateStr.matches("\\d{4}-\\d{2}")) {
+            dateStr += "-01";
+        } else if (!dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("不支持的日期格式: " + dateStr);
         }
+        return LocalDate.parse(dateStr).atStartOfDay();
     }
 }
