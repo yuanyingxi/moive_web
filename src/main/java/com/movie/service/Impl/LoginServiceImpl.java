@@ -38,6 +38,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public Map<String, Object> getUserInfo(String username) {
+
         Map<String, Object> map = new HashMap<>();
 
         // 生成双 Token
