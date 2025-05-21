@@ -103,7 +103,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             movie.setReleaseDate(parseLocalDateTime(getCellStringValue(row, 4))); // 上映日期
             movie.setRegion(getCellStringValue(row, 5)); // 地区
             //FIXME  movie.setIsVip(getCellNumericValue(row,));      是否是VIP
-            //FIXME  movie.setPlayCount(getCellNumericValue(row,));  播放次数
+            movie.setPlayCount(2 * (long)getCellNumericValue(row, 8));  //热度设置为评分人数的两倍
             movie.setDuration(parseDurationAndRegion(getCellStringValue(row, 6))); // 时长
             movie.setAverageRating(BigDecimal.valueOf(getCellNumericValue(row, 7))); // 评分
             movie.setRatingCount((long)getCellNumericValue(row, 8)); // 评分人数
