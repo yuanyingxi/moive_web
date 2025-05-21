@@ -2,6 +2,8 @@ package com.movie.interceptor;
 
 
 import com.movie.common.Result;
+import com.movie.entity.User;
+import com.movie.mapper.PlayMapper;
 import com.movie.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -27,6 +29,8 @@ public class JwtInterceptor implements HandlerInterceptor {
     private ObjectMapper objectMapper;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private PlayMapper playMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request,
@@ -53,8 +57,9 @@ public class JwtInterceptor implements HandlerInterceptor {
                 sendError(response, Result.error(401, "用户已注销"));
                 return false;
             }
-
-            request.setAttribute("username", username);
+            // TODO: 将当前 user 存入 request 中, 供后续业务使用
+            User user = playMapper.getUserByUsername(username);
+            request.setAttribute("user", user);
             return true;
         } catch (ExpiredJwtException e) {
             sendError(response, Result.error(401, "Token 已过期"));

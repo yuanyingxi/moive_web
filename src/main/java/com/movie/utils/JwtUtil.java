@@ -42,4 +42,10 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    // 直接获取用户名
+    public String getUsername(String token) {
+        Claims claims = parseToken(token);
+        return claims.getSubject();
+    }
 }

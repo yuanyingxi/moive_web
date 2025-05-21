@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.movie.mapper.UserMapper">
+<mapper namespace="com.movie.mapper.AuthMapper">
     <!-- 更新最后登录时间 -->
     <update id="updateLastLoginTime">
         update user set last_login_time = now() where username = #{username}

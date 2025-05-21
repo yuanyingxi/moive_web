@@ -22,6 +22,7 @@ public class Movie {
     @TableField("movie_no")
     private String movieNo;  // 电影编号
     private String title;  // 电影标题
+    private String url;  // 电影URL
     private String description;  // 剧情简介
     private String coverUrl;  // 电影海报URL
     private LocalDateTime releaseDate;  // 上映时间

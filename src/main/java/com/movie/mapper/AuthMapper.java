@@ -5,7 +5,7 @@ import com.movie.DTO.RegisterDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserMapper {
+public interface AuthMapper {
     // 查看用户名是否存在
     boolean existsByUsername(RegisterDTO registerDTO);
 

@@ -2,7 +2,7 @@ package com.movie.service.Impl;
 
 import com.movie.DTO.LoginDTO;
 import com.movie.common.Result;
-import com.movie.mapper.UserMapper;
+import com.movie.mapper.AuthMapper;
 import com.movie.service.LoginService;
 import com.movie.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class LoginServiceImpl implements LoginService {
     @Autowired
-    private UserMapper userMapper;
+    private AuthMapper authMapper;
     @Autowired
     private JwtUtil jwtUtils;
     @Autowired
@@ -28,12 +28,12 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public boolean checkUser(LoginDTO loginDTO) {
-        return userMapper.existsByUsernameAndPassword(loginDTO);
+        return authMapper.existsByUsernameAndPassword(loginDTO);
     }
 
     @Override
     public void updateLoginInfo(LoginDTO loginDTO) {
-        userMapper.updateLastLoginTime(loginDTO.getUsername());
+        authMapper.updateLastLoginTime(loginDTO.getUsername());
     }
 
     @Override
