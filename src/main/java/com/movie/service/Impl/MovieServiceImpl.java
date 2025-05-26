@@ -16,41 +16,22 @@ import java.util.concurrent.TimeUnit;
 public class MovieServiceImpl implements MovieService {
 
     private final MovieMapper movieMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MovieServiceImpl(MovieMapper movieMapper,
-                            RedisTemplate<String, Object> redisTemplate) {
+    public MovieServiceImpl(MovieMapper movieMapper) {
         this.movieMapper = movieMapper;
-        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public List<MovieRankingVO> getPlayRankings() {
-        String cacheKey = "movie:play_rankings";
-
-        // 使用类型安全的方式获取缓存
-        Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-        if (cachedData instanceof List) {
-            try {
-                @SuppressWarnings("unchecked")
-                List<MovieRankingVO> cached = (List<MovieRankingVO>) cachedData;
-                return cached;
-            } catch (ClassCastException e) {
-                log.warn("缓存数据类型不匹配，将重新查询数据库");
-            }
-        }
-
         // 查询数据库
         List<MovieRankingVO> rankings = movieMapper.selectPlayRankings();
+        log.info("从数据库获取到{}条播放排行数据", rankings.size());
 
         // 添加排名序号
         for (int i = 0; i < rankings.size(); i++) {
             rankings.get(i).setRank(i + 1);
         }
-
-        // 存入缓存（类型安全存储）
-        redisTemplate.opsForValue().set(cacheKey, rankings, 1, TimeUnit.HOURS);
         return rankings;
     }
 }

@@ -1,10 +1,13 @@
 package com.movie.controller;
 
 import com.movie.entity.Order;
+import com.movie.entity.User;
 import com.movie.utils.PayUtil;
 import com.movie.common.Result;
 import com.movie.entity.PaymentRequest;
 import com.movie.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.alipay.api.AlipayApiException;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Controller
@@ -32,24 +36,27 @@ public class AliPayController {
 // 商品名称 String productName
     @ResponseBody
     @PostMapping("/create")
-    public Result alipay( @RequestBody PaymentRequest request)
+    public Result alipay( @RequestBody PaymentRequest request, HttpServletRequest httpServletRequest)
             throws AlipayApiException {
         //从请求体获得参数
         String token = request.getAuthorization();
         BigDecimal amount = request.getAmount();
-        String productName = request.getProductName();
+
+        User user = (User) httpServletRequest.getAttribute("user");
 
         // 1. 获取当前用户ID（需要实现用户认证）
-        Long userId = getCurrentUserId(token);
+        Long userId = user.getId();
+
+        // 2.获取订单信息
 
         // 2. 创建订单记录
-        Order order = orderService.createOrder(userId, amount);
+        Order order = orderService.selectOrder(userId, amount);
 
         // 3. 调用支付宝接口
         return Result.success(payUtil.sendRequestToAlipay(
                 order.getOrderId(),
                 amount.toString(),
-                productName
+                order.getProductName()
         ));
     }
 
@@ -58,11 +65,6 @@ public class AliPayController {
         return Result.success();
     }
 
-    //FIXME 根据token格式进行调整
-    private Long getCurrentUserId(String token) {
-        // 实现根据token解析用户ID的逻辑
-        return 1L; // 示例值
-    }
 }
 
 
