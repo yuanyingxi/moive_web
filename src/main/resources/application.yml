@@ -8,7 +8,7 @@ spring:
       port: 6379
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: 123456
+    password: Yu20050914
     url: jdbc:mysql://localhost:3306/movie
     username: root
   web:
@@ -17,6 +17,11 @@ spring:
         - classpath:/static/
         - classpath:/video/
         -
+  security:
+    user:
+      name: Saki
+      password: Yu20050914
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

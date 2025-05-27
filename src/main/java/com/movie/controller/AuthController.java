@@ -3,6 +3,7 @@ package com.movie.controller;
 import com.movie.DTO.LoginDTO;
 import com.movie.DTO.RegisterDTO;
 import com.movie.common.Result;
+import com.movie.common.annotation.AccessLimit;
 import com.movie.service.LoginService;
 import com.movie.service.LogoutService;
 import com.movie.service.RegisterService;
