@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,15 +29,30 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public Order createOrder(Long userId, BigDecimal amount) {
+    public void createOrder(Long userId, String productName, BigDecimal amount) {
         Order order = new Order();
         order.setOrderId(generateOrderId(userId)); // 商户订单号, 主键
+        order.setProductName(productName);   // 商品名
         order.setUserId(userId);             // 用户id, （逻辑外键，关联user.id）
         order.setAmount(amount);             // 支付金额 //FIXME 注意：支付宝支付金额严格限定保留两位小数
         order.setPaymentStatusId(PaymentStatus.UNPAID); // 支付状态id, （逻辑外键，关联payment_statue.id)
         order.setPaymentTime(LocalDateTime.now());       // 创建订单时间
         orderMapper.insert(order);
-        return order;
+    }
+
+    /**
+     * 获取订单
+     */
+    @Override
+    @Transactional
+    public Order selectOrder(Long userId, BigDecimal amount) {
+        List<Order> orders = orderMapper.selectByUserId(userId);
+        for (Order order : orders) {
+            if (order.getAmount().compareTo(amount) == 0) {
+                return order;
+            }
+        }
+        return orders.getFirst();
     }
 
     /**
