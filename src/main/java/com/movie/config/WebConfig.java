@@ -24,7 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/user/register",
                         "/api/user/refresh",
                         "/api/excel/import",
-                        "/api/user/test"
+                        "/api/user/test",
+                        "/api/report/ranking"
                 ); // 排除登录和刷新接口
 
         registry.addInterceptor(accessLimitInterceptor)
