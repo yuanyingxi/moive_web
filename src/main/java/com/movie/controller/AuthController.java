@@ -27,6 +27,7 @@ public class AuthController {
     // 注册接口
     @PostMapping("/register")
     public Result register(@RequestBody @Valid RegisterDTO registerDTO) {
+        System.out.println(registerDTO);
         // 判断用户名是否已存在
         if (!registerService.isUserRegistered(registerDTO)) {
             registerService.insertUser(registerDTO);  // 注册用户

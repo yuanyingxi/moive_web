@@ -10,6 +10,6 @@ import java.util.List;
 
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
-    @Select("SELECT * FROM `order` WHERE user_id = #{userId}")
+    @Select("SELECT * FROM orders WHERE user_id = #{userId}")
     List<Order> selectByUserId(@Param("userId") Long userId);
 }

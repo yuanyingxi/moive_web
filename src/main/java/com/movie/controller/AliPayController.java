@@ -40,22 +40,26 @@ public class AliPayController {
             throws AlipayApiException {
         //从请求体获得参数
         String token = request.getAuthorization();
-        BigDecimal amount = request.getAmount();
+        String amount = request.getAmount();
+        String productName = request.getProductName();
 
         User user = (User) httpServletRequest.getAttribute("user");
 
         // 1. 获取当前用户ID（需要实现用户认证）
         Long userId = user.getId();
 
-        // 2.获取订单信息
+        BigDecimal countAmount = new BigDecimal(amount);
 
         // 2. 创建订单记录
-        Order order = orderService.selectOrder(userId, amount);
+        orderService.createOrder(userId,productName,countAmount);
+
+        // 2. 选择订单记录
+        Order order = orderService.selectOrder(userId, countAmount);
 
         // 3. 调用支付宝接口
         return Result.success(payUtil.sendRequestToAlipay(
                 order.getOrderId(),
-                amount.toString(),
+                order.getAmount().toString(),
                 order.getProductName()
         ));
     }

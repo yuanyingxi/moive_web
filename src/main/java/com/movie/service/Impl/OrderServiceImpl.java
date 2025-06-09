@@ -36,7 +36,9 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(userId);             // 用户id, （逻辑外键，关联user.id）
         order.setAmount(amount);             // 支付金额 //FIXME 注意：支付宝支付金额严格限定保留两位小数
         order.setPaymentStatusId(PaymentStatus.UNPAID); // 支付状态id, （逻辑外键，关联payment_statue.id)
-        order.setPaymentTime(LocalDateTime.now());       // 创建订单时间
+        order.setCreateTime(LocalDateTime.now());       // 创建订单时间
+        String alipayTradeNo = this.generateOrderId(userId);
+        order.setAlipayTradeNo(alipayTradeNo);
         orderMapper.insert(order);
     }
 
@@ -68,7 +70,6 @@ public class OrderServiceImpl implements OrderService {
 
         order.setPaymentStatusId(PaymentStatus.PAID);
         order.setPayTime(LocalDateTime.now());
-        order.setAliPayTradeNo(aliPayTradeNo);
         return orderMapper.updateById(order) > 0;
     }
 
