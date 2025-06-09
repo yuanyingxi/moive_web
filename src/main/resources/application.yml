@@ -16,11 +16,6 @@ spring:
       static-locations:
         - classpath:/static/
         - classpath:/video/
-        -
-  security:
-    user:
-      name: Saki
-      password: Yu20050914
 
 mybatis-plus:
   configuration:
