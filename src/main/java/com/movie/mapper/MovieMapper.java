@@ -27,13 +27,14 @@ public interface MovieMapper extends BaseMapper<Movie> {
     @Select("SELECT title, play_count FROM movie ORDER BY play_count DESC LIMIT 10")
     List<MovieRankingVO> selectPlayRankings();
 
-    @Results({
-            @Result(column = "title", property = "title"),
-            @Result(column = "url", property = "url"),
-            @Result(column = "cover_url", property = "coverUrl"),
-            @Result(column = "is_vip", property = "isVip"),
-            @Result(column = "average_rating", property = "averageRating")
-    })
+    // 分页查询方法
     @Select("SELECT title, url, cover_url, is_vip, average_rating FROM movie")
-    List<MovieBasicVO> selectAllMovieBasics();
+    @Results({
+            @Result(property = "title", column = "title"),
+            @Result(property = "url", column = "url"),
+            @Result(property = "coverUrl", column = "cover_url"),
+            @Result(property = "isVip", column = "is_vip"),
+            @Result(property = "averageRating", column = "average_rating")
+    })
+    List<MovieBasicVO> selectMovieList();
 }
