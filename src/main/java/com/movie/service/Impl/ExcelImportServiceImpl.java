@@ -103,14 +103,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             movie.setMovieNo(getCellStringValue(row, 0)); //电影ID
             movie.setTitle(getCellStringValue(row, 1)); // 标题
             movie.setDescription(getCellStringValue(row, 2)); // 简介
-            movie.setCoverUrl(getCellStringValue(row, 3)); // 封面URL
+            movie.setCoverUrl("http://fce48f66.natappfree.cc/api/MovieCover/"+getCellStringValue(row, 0)+".jpg"); // 封面URL
             movie.setReleaseDate(parseLocalDate(getCellStringValue(row, 4))); // 上映日期
             movie.setRegion(getCellStringValue(row, 5)); // 地区
             double rate = getCellNumericValue(row, 7);
             int isVip = 0;
-            if(rate >= 9.0){ isVip = 1;}
+            if(rate >= 9.2){ isVip = 1;}
             movie.setIsVip(isVip);      //  是否是VIP 评分大于等于9是vip
-            movie.setUrl(isVip==1?"http://b7b8a6d4.natappfree.cc/AveMujica.mp4":"http://b7b8a6d4.natappfree.cc/MyGo.mp4");
+            movie.setUrl(isVip==1?"http://fce48f66.natappfree.cc/AveMujica.mp4":"http://fce48f66.natappfree.cc/MyGo.mp4");
             movie.setPlayCount(2 * (long)getCellNumericValue(row, 8));  //热度设置为评分人数的两倍
             movie.setDuration(parseDurationAndRegion(getCellStringValue(row, 6))); // 时长
             movie.setAverageRating(BigDecimal.valueOf(getCellNumericValue(row, 7))); // 评分

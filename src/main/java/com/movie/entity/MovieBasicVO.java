@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName("movie")
 public class MovieBasicVO {
+    private String id;
     private String title;
+    private String description;
     private String url;
     private String coverUrl;
     private Boolean isVip;
